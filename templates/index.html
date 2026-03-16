@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CHAT</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div class="background-animation">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+    </div>
+
+    <div class="container">
+        <header class="header">
+            <h1>ElectroChat<span class="highlight"></span></h1>
+            <p>Chat asistente para temas de electrónica, microcontroladores y automatización</p>
+        </header>
+
+        <main class="glass-panel">
+            <div class="input-group">
+                <label for="prompt">¿Sobre qué quieres que escriba?</label>
+                <textarea id="prompt" rows="5" placeholder="¿En qué estás pensando?"></textarea>
+            </div>
+
+            <button id="generate-btn" class="glow-on-hover">
+                <span class="btn-text">ENVIAR</span>
+                <span class="loader hidden"></span>
+            </button>
+
+            <div class="output-group">
+                <label>Resultado:</label>
+                <div id="output-box" class="output-box">
+                    <p class="placeholder-text">El texto generado aparecerá aquí...</p>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script src="/static/js/script.js"></script>
+</body>
+
+</html>
