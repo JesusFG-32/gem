@@ -1,67 +1,128 @@
 document.addEventListener('DOMContentLoaded', () => {
     const generateBtn = document.getElementById('generate-btn');
     const promptInput = document.getElementById('prompt');
-    const outputBox = document.getElementById('output-box');
-    const btnText = document.querySelector('.btn-text');
-    const loader = document.querySelector('.loader');
+    const chatMessages = document.getElementById('chat-messages');
+
+    // Auto-resize textarea
+    promptInput.addEventListener('input', function() {
+        this.style.height = 'auto';
+        const newHeight = Math.min(this.scrollHeight, 150);
+        this.style.height = newHeight + 'px';
+    });
+
+    // Handle Enter key (Shift+Enter for new line, Enter to send)
+    promptInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            generateBtn.click();
+        }
+    });
 
     generateBtn.addEventListener('click', async () => {
         const prompt = promptInput.value.trim();
         if (!prompt) {
-            showError("Por favor, introduce un texto para generar.");
             promptInput.focus();
             return;
         }
-        setLoadingState(true);
+
+        // 1. Add User Message
+        appendMessage('user', prompt);
+        
+        // Clear input and reset height
+        promptInput.value = '';
+        promptInput.style.height = 'auto';
+        promptInput.focus();
+
+        // 2. Disable input and button while thinking
+        promptInput.disabled = true;
+        generateBtn.disabled = true;
+
+        // 3. Add temporary bot "typing" indicator
+        const typingId = 'typing-' + Date.now();
+        appendTypingIndicator(typingId);
+
         try {
             const response = await fetch('/api/generate', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({
-                    text: prompt
-                })
+                body: JSON.stringify({ text: prompt })
             });
             const data = await response.json();
+            
+            // Remove typing indicator
+            removeElement(typingId);
+
             if (!response.ok) {
                 throw new Error(data.error || 'Ocurrió un error al contactar al servidor.');
             }
-            displayResult(data.result);
+            
+            // 4. Add Bot Message
+            appendMessage('bot', data.result);
         } catch (error) {
-            showError(error.message);
+            removeElement(typingId);
+            appendMessage('bot', `❌ Error: ${error.message}`, true);
         } finally {
-            setLoadingState(false);
+            promptInput.disabled = false;
+            generateBtn.disabled = false;
+            generateBtn.classList.remove('loading');
+            promptInput.focus();
         }
     });
 
-    function setLoadingState(isLoading) {
-        if (isLoading) {
-            generateBtn.disabled = true;
-            btnText.textContent = 'Generando...';
-            loader.classList.remove('hidden');
-            outputBox.innerHTML = '<p class="placeholder-text">Pensando...</p>';
-            outputBox.classList.remove('has-content');
-        } else {
-            generateBtn.disabled = false;
-            btnText.textContent = 'Generar Texto';
-            loader.classList.add('hidden');
-        }
-    }
+    function appendMessage(sender, text, isError = false) {
+        const msgDiv = document.createElement('div');
+        msgDiv.className = `message ${sender}`;
+        if (isError) msgDiv.style.color = '#ef4444';
 
-    function displayResult(text) {
-        outputBox.innerHTML = '';
-        outputBox.classList.add('has-content');
+        const contentDiv = document.createElement('div');
+        contentDiv.className = 'message-content';
+
+        // Split text by newlines and create paragraphs to handle formatting simply
         const paragraphs = text.split('\n').filter(p => p.trim() !== '');
-        paragraphs.forEach(pText => {
+        if (paragraphs.length === 0) {
             const p = document.createElement('p');
-            p.textContent = pText;
-            outputBox.appendChild(p);
-        });
+            p.textContent = text;
+            contentDiv.appendChild(p);
+        } else {
+            paragraphs.forEach(pText => {
+                const p = document.createElement('p');
+                p.textContent = pText;
+                contentDiv.appendChild(p);
+            });
+        }
+
+        msgDiv.appendChild(contentDiv);
+        chatMessages.appendChild(msgDiv);
+        scrollToBottom();
     }
 
-    function showError(message) {
-        outputBox.innerHTML = `<p class="error-text">❌ Error: ${message}</p>`;
-        outputBox.classList.remove('has-content');
+    function appendTypingIndicator(id) {
+        const msgDiv = document.createElement('div');
+        msgDiv.className = `message bot`;
+        msgDiv.id = id;
+
+        const contentDiv = document.createElement('div');
+        contentDiv.className = 'message-content typing-indicator';
+        
+        contentDiv.innerHTML = `
+            <span></span>
+            <span></span>
+            <span></span>
+        `;
+
+        msgDiv.appendChild(contentDiv);
+        chatMessages.appendChild(msgDiv);
+        scrollToBottom();
+    }
+
+    function removeElement(id) {
+        const el = document.getElementById(id);
+        if (el) el.remove();
+    }
+
+    function scrollToBottom() {
+        chatMessages.scrollTop = chatMessages.scrollHeight;
     }
 });

@@ -22,22 +22,22 @@
             <p>Chat asistente para temas de electrónica, microcontroladores y automatización</p>
         </header>
 
-        <main class="glass-panel">
-            <div class="input-group">
-                <label for="prompt">¿Sobre qué quieres que escriba?</label>
-                <textarea id="prompt" rows="5" placeholder="¿En qué estás pensando?"></textarea>
+        <main class="glass-panel chat-panel">
+            <div id="chat-messages" class="chat-messages">
+                <div class="message bot">
+                    <div class="message-content">
+                        <p>¡Hola! Soy ElectroChat, tu asistente de electrónica. ¿En qué te puedo ayudar hoy?</p>
+                    </div>
+                </div>
             </div>
 
-            <button id="generate-btn" class="glow-on-hover">
-                <span class="btn-text">ENVIAR</span>
-                <span class="loader hidden"></span>
-            </button>
-
-            <div class="output-group">
-                <label>Resultado:</label>
-                <div id="output-box" class="output-box">
-                    <p class="placeholder-text">El texto generado aparecerá aquí...</p>
-                </div>
+            <div class="input-area">
+                <textarea id="prompt" rows="1" placeholder="Escribe un mensaje..."></textarea>
+                <button id="generate-btn" class="glow-on-hover send-btn" aria-label="Enviar mensaje">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
+                        <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+                    </svg>
+                </button>
             </div>
         </main>
     </div>
